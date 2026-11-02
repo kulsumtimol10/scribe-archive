@@ -22,15 +22,20 @@ Motion is turned off for readers who ask their device for reduced motion.
 
 ```bash
 npm install
-npm run dev        # http://localhost:5190
+npm run dev        # http://localhost:5190/scribe-archive/
 npm test
 npm run build      # type-checks, then builds to dist/
 ```
 
 ## Deploy
 
-Vercel works out of the box (framework: Vite). `vercel.json` sends every path to `index.html` so links like
-`/read` load directly.
+GitHub Pages, at https://kulsumtimol10.github.io/scribe-archive/. Every push to `main` runs
+`.github/workflows/deploy.yml`, which tests, builds and publishes `dist/`.
+
+- The site lives in the `/scribe-archive/` folder (`base` in `vite.config.ts`); in-app links come from
+  `src/lib/router.ts`, so they follow it automatically. On a custom domain, set `base` to `/`.
+- Pages can't rewrite URLs, so the build copies `index.html` into each page's folder (`read/`, `wallpapers/`)
+  and to `404.html`. A new page only needs adding to `src/lib/routes.ts`.
 
 ## Ground rules
 
