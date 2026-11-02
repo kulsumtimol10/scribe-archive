@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" data-theme="night">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="The Scribe Archive: an unofficial, fan-made world for readers of the Empyrean series. Read with Basgiath's storms and carry your dragon on your lock screen." />
+    <meta name="theme-color" content="#07090d" />
+    <meta property="og:title" content="The Scribe Archive" />
+    <meta property="og:description" content="An unofficial, fan-made world for riders. Read with Basgiath's storms and make your own dragon wallpaper." />
+    <title>The Scribe Archive</title>
+    <script>
+      // Paint the reader's chosen sky before anything renders, so a returning
+      // Storm & silver reader never sees a flash of Night & gold.
+      try {
+        var saved = localStorage.getItem('scribe-archive:theme');
+        if (saved === 'night' || saved === 'storm') document.documentElement.dataset.theme = saved;
+      } catch (e) {}
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
