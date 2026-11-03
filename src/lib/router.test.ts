@@ -4,7 +4,12 @@ import { routeOf } from './router';
 describe('routeOf at the site root', () => {
   it('finds each page', () => {
     expect(routeOf('/', '')).toBe('home');
+    expect(routeOf('/map', '')).toBe('map');
     expect(routeOf('/threshing', '')).toBe('threshing');
+    expect(routeOf('/trials', '')).toBe('trials');
+    expect(routeOf('/trials/parapet', '')).toBe('parapet');
+    expect(routeOf('/trials/gauntlet', '')).toBe('gauntlet');
+    expect(routeOf('/trials/war-games', '')).toBe('warGames');
     expect(routeOf('/read', '')).toBe('read');
     expect(routeOf('/wallpapers', '')).toBe('wallpapers');
   });
@@ -30,6 +35,7 @@ describe('routeOf under the GitHub Pages folder', () => {
   it('finds pages, including the folder form Pages redirects to', () => {
     expect(routeOf('/scribe-archive/read', base)).toBe('read');
     expect(routeOf('/scribe-archive/wallpapers/', base)).toBe('wallpapers');
+    expect(routeOf('/scribe-archive/trials/parapet/', base)).toBe('parapet');
   });
 
   it('rejects paths outside the folder', () => {

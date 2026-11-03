@@ -1,4 +1,4 @@
-export type Route = 'home' | 'threshing' | 'read' | 'wallpapers';
+export type Route = 'home' | 'map' | 'threshing' | 'trials' | 'parapet' | 'gauntlet' | 'warGames' | 'read' | 'wallpapers';
 
 /**
  * Each page's path inside the site, before the folder it is hosted under.
@@ -6,7 +6,12 @@ export type Route = 'home' | 'threshing' | 'read' | 'wallpapers';
  */
 export const ROUTES: Record<Route, string> = {
   home: '/',
+  map: '/map',
   threshing: '/threshing',
+  trials: '/trials',
+  parapet: '/trials/parapet',
+  gauntlet: '/trials/gauntlet',
+  warGames: '/trials/war-games',
   read: '/read',
   wallpapers: '/wallpapers',
 };

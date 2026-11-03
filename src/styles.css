@@ -1248,6 +1248,784 @@ input[type='text'] {
   gap: 8px 24px;
 }
 
+/* The Archive map: full-bleed, with the panel floating over it. */
+
+.map-page {
+  position: relative;
+  height: calc(100vh - 73px);
+  min-height: 560px;
+  overflow: hidden;
+}
+
+.map-stage {
+  position: absolute;
+  inset: 0;
+  background: #05070a;
+}
+
+.map-canvas {
+  position: absolute !important;
+  inset: 0;
+  touch-action: none;
+}
+
+.map-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  font-family: var(--lore);
+  font-size: 20px;
+  color: var(--soft);
+}
+
+.map-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 70% at 62% 50%, transparent 55%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+.map-panel {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  bottom: 20px;
+  width: min(380px, calc(100% - 40px));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.map-panel h1 {
+  font-size: clamp(26px, 2.6vw, 34px);
+}
+
+.place-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+
+.place-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sealed-note {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cool);
+}
+
+.place-name {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.book-chip {
+  font-family: var(--display);
+  font-weight: 700;
+}
+
+.ward-status {
+  margin-top: 4px;
+  font-family: var(--lore);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--cool);
+}
+
+.compass {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  color: var(--ink);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+}
+
+.compass-north {
+  fill: var(--accent);
+}
+
+.compass-letter {
+  fill: var(--ink);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.map-overlay {
+  position: absolute;
+  left: 420px;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.map-overlay > * {
+  pointer-events: auto;
+}
+
+.map-hint {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  font-size: 12px;
+  color: var(--soft);
+}
+
+.map-reset {
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.map-labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Place names hang over their lights like lettering on an old map, with a fine line down to the beacon. */
+.map-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: auto;
+  padding: 4px 6px 0;
+  border: none;
+  background: none;
+  color: var(--ink);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px #000, 0 0 14px rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+  user-select: none;
+}
+
+.map-label::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 16px;
+  margin: 4px auto 0;
+  background: linear-gradient(currentColor, transparent);
+  opacity: 0.7;
+}
+
+.map-label:hover,
+.map-label.selected {
+  color: var(--accent);
+}
+
+.map-label.sealed {
+  color: var(--muted);
+  font-style: italic;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+/* Riding a dragon over the map */
+
+.take-flight {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.found-mark {
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.ride-hud {
+  position: absolute;
+  top: 20px;
+  left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.ride-stats {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--soft);
+}
+
+.land {
+  position: absolute;
+  top: 22px;
+  right: 112px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.ride-warning {
+  position: absolute;
+  top: 96px;
+  left: 50%;
+  padding: 8px 16px;
+  border: 1px solid var(--cool);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  color: var(--cool);
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.ride-warning.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.ride-card {
+  position: absolute;
+  left: 50%;
+  bottom: 64px;
+  width: min(460px, calc(100% - 32px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ride-place {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 75%, transparent);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  animation: fade-up 0.5s ease both;
+}
+
+.ride-place.found {
+  border-color: var(--accent);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.ride-place.found .muted-kicker {
+  color: var(--accent);
+}
+
+.ride-place-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.ride-place-text {
+  font-family: var(--lore);
+  font-size: 17px;
+  color: var(--soft);
+}
+
+.ride-keys {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--soft);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.ride-controls {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .ride-keys {
+    display: none;
+  }
+
+  .ride-controls {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+    padding: 8px 12px 12px;
+    background: var(--panel);
+  }
+
+  .map-page.riding .ride-card {
+    bottom: 16px;
+  }
+}
+
+/* War Games */
+
+.race-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.race-stage {
+  position: relative;
+  height: calc(100vh - 73px);
+  min-height: 520px;
+  overflow: hidden;
+  background: #05070a;
+}
+
+.race-clock {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.race-best {
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.gate-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  visibility: hidden;
+  pointer-events: none;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* At the screen's edge the ring becomes an arrow pointing the way to the gate. */
+.gate-marker.edge {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.gate-arrow {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.gate-marker.edge .gate-arrow {
+  display: block;
+}
+
+.gate-arrow::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 18px solid var(--accent);
+  transform: translateX(-50%);
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+
+/* The Gauntlet */
+
+.hud-word {
+  font-size: 18px;
+}
+
+.gust-alert.danger {
+  border-color: #ff6b5e;
+  color: #ff8a80;
+}
+
+.countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(64px, 12vw, 140px);
+  color: var(--ink);
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  animation: fade-up 0.4s ease both;
+}
+
+@media (pointer: coarse) {
+  .touch-controls.gauntlet-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gauntlet-controls .hold {
+    min-height: 84px;
+    font-size: 16px;
+  }
+}
+
+/* The Trials */
+
+.trial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 20px;
+}
+
+.trial-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 240px;
+  padding: 28px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 4px;
+  overflow: hidden;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.trial-card.open {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--panel);
+  transition: transform 0.2s ease;
+}
+
+.trial-card.open:hover {
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.trial-numeral {
+  position: absolute;
+  top: 6px;
+  right: 18px;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 84px;
+  line-height: 1;
+  color: var(--line-strong);
+}
+
+.trial-best {
+  margin-top: auto;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.soon-inline {
+  color: var(--cool);
+}
+
+/* Cross the Parapet */
+
+.parapet-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px var(--gutter) 40px;
+}
+
+.stage {
+  position: relative;
+  height: min(72vh, 680px);
+  min-height: 420px;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: none;
+}
+
+.stage-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 18px;
+  pointer-events: none;
+}
+
+.hud-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.hud-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-label {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.hud-value {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.pause {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+  color: var(--ink);
+  pointer-events: auto;
+}
+
+.gust-alert {
+  position: absolute;
+  top: 84px;
+  left: 50%;
+  padding: 8px 14px;
+  border: 1px solid var(--cool);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  color: var(--cool);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.gust-alert.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.balance {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: min(520px, calc(100% - 32px));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.balance-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.balance-track {
+  position: relative;
+  height: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(217, 83, 79, 0.85) 0%,
+    rgba(217, 83, 79, 0.15) 25%,
+    rgba(255, 255, 255, 0.08) 40%,
+    rgba(255, 255, 255, 0.08) 60%,
+    rgba(217, 83, 79, 0.15) 75%,
+    rgba(217, 83, 79, 0.85) 100%
+  );
+}
+
+.balance-needle {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 4px;
+  height: 24px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.balance-needle.danger {
+  background: #ff6b5e;
+  box-shadow: 0 0 12px #ff6b5e;
+}
+
+.stage-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(480px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px;
+  transform: translate(-50%, -50%);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.stage-panel h1 {
+  font-size: clamp(28px, 4vw, 40px);
+}
+
+.chip-note {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+.how {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--soft);
+}
+
+kbd {
+  padding: 2px 7px;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  font-family: var(--ui);
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.panel-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 20px;
+}
+
+.touch-controls {
+  display: none;
+  grid-template-columns: 1fr 1.3fr 1.3fr 1fr;
+  gap: 8px;
+}
+
+.hold {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.hold:active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 25%, var(--panel));
+}
+
+/* Touch screens get hold buttons; keyboards get key hints. */
+@media (pointer: coarse) {
+  .touch-controls {
+    display: grid;
+  }
+
+  .how li:first-child {
+    display: none;
+  }
+}
+
+@media (pointer: fine) {
+  .how-touch {
+    display: none;
+  }
+}
+
 /* Phones: nav moves to bottom tabs, theme switch becomes two swatches. */
 
 @media (max-width: 760px) {
@@ -1281,8 +2059,8 @@ input[type='text'] {
     bottom: 0;
     z-index: 10;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    padding: 6px 8px env(safe-area-inset-bottom);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 6px 4px env(safe-area-inset-bottom);
     background: color-mix(in srgb, var(--bg) 92%, transparent);
     backdrop-filter: blur(12px);
     border-top: 1px solid var(--line);
@@ -1297,8 +2075,8 @@ input[type='text'] {
     gap: 5px;
     color: var(--muted);
     text-decoration: none;
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    letter-spacing: 0.02em;
   }
 
   .tab-bar a[aria-current='page'] {
@@ -1355,6 +2133,108 @@ input[type='text'] {
 
   .bond-card {
     flex-basis: 240px;
+  }
+
+  .parapet-page {
+    padding: 12px 12px 16px;
+  }
+
+  /* The map comes first on phones, with the panel under it and the page scrolling as usual. */
+  .map-page {
+    height: auto;
+    overflow: visible;
+  }
+
+  .map-stage {
+    position: relative;
+    height: 64vh;
+    min-height: 380px;
+  }
+
+  .map-panel {
+    position: static;
+    width: auto;
+    overflow: visible;
+    padding: 24px var(--gutter);
+    background: var(--panel);
+    backdrop-filter: none;
+    border: none;
+    border-radius: 0;
+  }
+
+  .map-overlay {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .map-hint {
+    display: none;
+  }
+
+  .compass svg {
+    width: 54px;
+    height: 54px;
+  }
+
+  .land {
+    right: 86px;
+  }
+
+  .race-stage {
+    height: 64vh;
+    min-height: 400px;
+  }
+
+  .race-clock {
+    font-size: 22px;
+  }
+
+  .ride-hud {
+    left: 12px;
+    right: 150px;
+    top: 12px;
+  }
+
+  .ride-stats {
+    font-size: 12px;
+  }
+
+  .map-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .stage {
+    height: 56vh;
+    min-height: 360px;
+  }
+
+  .hud-stats {
+    gap: 16px;
+  }
+
+  .hud-value {
+    font-size: 18px;
+  }
+
+  .gust-alert {
+    top: 70px;
+  }
+
+  /* The climb is tall, so its wall takes the height the bridge doesn't need. */
+  .gauntlet-stage {
+    height: calc(100svh - 300px);
+    min-height: 420px;
+  }
+
+  .stage-panel {
+    gap: 12px;
+    padding: 20px;
+  }
+
+  .stage-panel .lore {
+    font-size: 17px;
   }
 }
 

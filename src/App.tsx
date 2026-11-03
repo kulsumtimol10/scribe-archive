@@ -1,9 +1,14 @@
 import { Footer, Header, TabBar } from './components/Chrome';
 import { Link } from './components/Link';
+import { ArchiveMapPage } from './pages/ArchiveMap';
 import { HomePage } from './pages/Home';
 import { ReadPage } from './pages/Read';
 import { SkyChooser } from './pages/SkyChooser';
+import { GauntletPage } from './pages/Gauntlet';
+import { ParapetPage } from './pages/Parapet';
 import { ThreshingPage } from './pages/Threshing';
+import { TrialsPage } from './pages/Trials';
+import { WarGamesPage } from './pages/WarGames';
 import { WallpapersPage } from './pages/Wallpapers';
 import { PATHS, routeOf, usePathname, type Route } from './lib/router';
 import { useTheme } from './lib/theme';
@@ -12,8 +17,18 @@ function Page({ route }: { route: Route | null }) {
   switch (route) {
     case 'home':
       return <HomePage />;
+    case 'map':
+      return <ArchiveMapPage />;
     case 'threshing':
       return <ThreshingPage />;
+    case 'trials':
+      return <TrialsPage />;
+    case 'parapet':
+      return <ParapetPage />;
+    case 'gauntlet':
+      return <GauntletPage />;
+    case 'warGames':
+      return <WarGamesPage />;
     case 'read':
       return <ReadPage />;
     case 'wallpapers':

@@ -5,10 +5,20 @@ import { ThemeSwitch } from './ThemeSwitch';
 
 const NAV: { route: Route; label: string }[] = [
   { route: 'home', label: 'Home' },
+  { route: 'map', label: 'Map' },
   { route: 'threshing', label: 'Threshing' },
+  { route: 'trials', label: 'Trials' },
   { route: 'read', label: 'Read' },
   { route: 'wallpapers', label: 'Wallpapers' },
 ];
+
+/** Phones fit five tabs; the logo in the header already goes home. */
+const TABS = NAV.filter((item) => item.route !== 'home');
+
+/** Marks the nav item for this page; a game counts as being in the Trials. */
+function current(item: Route, route: Route | null): 'page' | undefined {
+  return item === route || (item === 'trials' && (route === 'parapet' || route === 'gauntlet' || route === 'warGames')) ? 'page' : undefined;
+}
 
 export function Header({ route, theme }: { route: Route | null; theme: ThemeId }) {
   return (
@@ -22,7 +32,7 @@ export function Header({ route, theme }: { route: Route | null; theme: ThemeId }
       </Link>
       <nav className="site-nav" aria-label="Main">
         {NAV.map((item) => (
-          <Link key={item.route} href={PATHS[item.route]} aria-current={item.route === route ? 'page' : undefined}>
+          <Link key={item.route} href={PATHS[item.route]} aria-current={current(item.route, route)}>
             {item.label}
           </Link>
         ))}
@@ -41,8 +51,8 @@ export function Header({ route, theme }: { route: Route | null; theme: ThemeId }
 export function TabBar({ route }: { route: Route | null }) {
   return (
     <nav className="tab-bar" aria-label="Main">
-      {NAV.map((tab) => (
-        <Link key={tab.route} href={PATHS[tab.route]} aria-current={tab.route === route ? 'page' : undefined}>
+      {TABS.map((tab) => (
+        <Link key={tab.route} href={PATHS[tab.route]} aria-current={current(tab.route, route)}>
           <span className="tab-dot" aria-hidden="true" />
           {tab.label}
         </Link>

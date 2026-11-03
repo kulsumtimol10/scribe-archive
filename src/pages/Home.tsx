@@ -10,6 +10,18 @@ const OPEN = [
     text: 'Six steps across the field. One dragon chooses you, and you leave with a rider card made for your stories.',
   },
   {
+    href: PATHS.map,
+    kicker: 'The Archive map',
+    name: 'Fly over Navarre',
+    text: 'A 3D map you can turn and zoom, with a spoiler shield that keeps later books sealed until you get there.',
+  },
+  {
+    href: PATHS.trials,
+    kicker: 'The Trials',
+    name: 'Survive Basgiath',
+    text: 'Cross the Parapet in a storm, climb a new Gauntlet every day, and race your own ghost through the War Games.',
+  },
+  {
     href: PATHS.read,
     kicker: 'Soundscapes',
     name: 'Read with Basgiath',
@@ -25,9 +37,7 @@ const OPEN = [
 
 const FORGING = [
   { name: 'Threshing Night', text: 'Once a month, every reader walks the field at the same time.' },
-  { name: 'The Trials', text: 'Cross the Parapet, climb the Gauntlet, survive the War Games.' },
   { name: 'The Commons', text: 'Theories, reviews and spoiler-shielded talk with other riders.' },
-  { name: 'The Archive map', text: 'Fly over Navarre in 3D, one book at a time.' },
 ];
 
 export function HomePage() {
