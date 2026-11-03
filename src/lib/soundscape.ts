@@ -135,6 +135,11 @@ export class Soundscape {
     for (const { id } of TRACKS) this.setVolume(id, volumes[id]);
   }
 
+  /** A thunderclap now, to go with lightning on screen. */
+  strike(): void {
+    if (!this.closed) this.thunder();
+  }
+
   /** Fades everything out, then releases the audio device. */
   async fadeOut(seconds: number): Promise<void> {
     if (this.closed) return;

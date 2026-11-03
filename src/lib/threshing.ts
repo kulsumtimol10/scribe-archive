@@ -1,4 +1,5 @@
 import type { DragonColours } from '../components/art/Dragon';
+import { hash, seeded } from './seeded';
 
 /**
  * The Threshing: six questions, then a dragon chooses you. The result depends
@@ -167,27 +168,6 @@ export interface Bond {
   signet: Signet;
   rare: boolean;
   wing: string;
-}
-
-/** FNV-1a: a small, stable string hash. */
-function hash(text: string): number {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < text.length; i++) {
-    h ^= text.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return h >>> 0;
-}
-
-/** Mulberry32: a seeded random generator, so results repeat exactly. */
-function seeded(seed: number): () => number {
-  let a = seed;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
 }
 
 export function isComplete(answers: number[]): boolean {

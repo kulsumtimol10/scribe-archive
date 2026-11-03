@@ -229,6 +229,9 @@ export function ThreshingPage() {
                 : 'Sized for stories on TikTok and Instagram.'}
             </p>
             <div className="bond-links">
+              <Link href={`${PATHS.codex}?a=yours&b=tairn`} className="text-button">
+                Set {bond.dragonName} beside Tairn
+              </Link>
               <Link href={PATHS.wallpapers} className="text-button">
                 Make {bond.dragonName} your wallpaper
               </Link>

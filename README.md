@@ -22,11 +22,25 @@ Rebecca Yarros, Entangled Publishing or Red Tower Books.
   `src/lib/dragonFlight.ts`: the dragon can't clip the ground, and the wards steer it home from open sea.
   Add `?lite` to the URL to turn the glow pass off on slow machines. Glow shaders must never output NaN (clamp
   before `pow`): the bloom pass smears a single NaN pixel into a black screen.
+- **Fly with Tairn** (`/fly`). A flight told by scrolling, in six chapters: Basgiath, the Vale, the Parapet,
+  the storm, the cliffs and the border at dawn. The page's scroll position drives everything: the sky's
+  colours, layered mountains moving at different speeds, the ground dropping away as the dragon climbs, rain
+  and lightning in the storm, the sunrise and the wards at the end. The dragon flaps, banks and dives.
+  "Sound on" plays the Read with Basgiath engine, blended by chapter (wind, wingbeats, rain, thunder timed
+  to the lightning). Readers who walked the Threshing can fly their own dragon instead. The blending is in
+  `src/lib/scrollFlight.ts` (tested); the land is drawn in `src/components/art/FlightWorld.tsx`.
 - **The Threshing** (`/threshing`). Six questions on a night field full of watching eyes, then a dragon
   chooses you: colour, tail, a generated name, a signet (one in twenty gets the rare one) and a wing. The
   result depends only on the answers and the rider's name (`src/lib/threshing.ts`), so it's saved by
   storing just those. Download or share a 1080×1920 rider card for stories; the wallpaper studio then
   offers the reader's own dragon first.
+- **The Dragon Codex** (`/codex`). Any two dragons side by side, each turning on its own 3D plinth (drag to
+  turn). The dragons are built in code (`src/components/3d/CodexDragon.tsx`), with a different tail tip for
+  each of the six tail types. Each card lists rider, colour, tail and the book it first flies in; riders'
+  signets sit under a wax seal until the reader breaks it. The spoiler shield hides later dragons and later
+  looks (Andarna changes in Book II). A reader's Threshing dragon joins the list as "Your dragon", and the
+  pair is kept in the address (`/codex?a=tairn&b=sgaeyl`) so a comparison can be shared. Facts live in
+  `src/lib/codex.ts`, checked against fan wikis and written in the Archive's own words.
 - **The Trials** (`/trials`) and **Cross the Parapet** (`/trials/parapet`). A balance game on the bridge
   over the gorge: hold W to walk, A/D to lean, Space to brace through gusts that are always announced first.
   Clear, Rain and Storm weather; best times are kept per weather. Touch screens get hold buttons. The
@@ -45,9 +59,23 @@ Rebecca Yarros, Entangled Publishing or Red Tower Books.
   is saved with a ghost path that races beside you next time. Course and ghost logic are in
   `src/lib/warGames.ts`; a test flies the whole course with an autopilot to prove it can be done. In
   development, `window.__ride` and `window.__teleport(x, y, z, heading)` help test races from the console.
+- **The Commons** (`/commons`). Fan discussion in seven halls (one per book, plus Theories, Reviews, Fan art and
+  Buddy reads). Threads and replies carry the latest book they spoil, and the reader's spoiler shield blurs
+  anything past their book until they choose to reveal it. Dragon-scale likes, 1–5 scale ratings for each
+  book, reports, and moderator tools. Readers sign in with Google or an emailed link and are only ever shown
+  by the rider name they pick. It runs on Firebase's free plan; until `src/lib/firebaseConfig.ts` is filled
+  in it runs in a labelled preview that keeps posts in the visitor's own browser. Setup steps are in
+  [COMMONS_SETUP.md](COMMONS_SETUP.md); the server-side rules are in `firestore.rules`. The posting rules and
+  the preview store are tested in `src/lib/commons.test.ts`.
 - **Read with Basgiath** (`/read`). Six ambient layers (rain, wind, hearth, thunder, wingbeats, scribe quills)
   synthesised live with the Web Audio API, so there are no recordings to license. Presets, per-layer sliders
   and a reading timer that fades the sound out.
+- **The relic** (`/relic`). A swirling mark drawn from the reader's name (the same name always draws the same
+  mark; Redraw steps through variants), in plain ink or one of four glows. Try it on with the phone camera
+  (front or back), a photo, or a practice arm with four skin tones: drag to place it, pinch to size and twist,
+  or use the sliders and arrow keys. The shutter takes a 1080×1440 photo, mirrored like the preview for a
+  selfie, to save or share. The camera never leaves the device. The mark generator (`src/lib/relic.ts`) is
+  tested to stay in its box for any name; the photo is put together in `src/lib/relicPhoto.ts`.
 - **Wallpaper studio** (`/wallpapers`). Pick a dragon, a sky and a rider name, then download a full-resolution
   phone (1290×2796) or desktop (2560×1440) wallpaper. On phones that support it, "Share or save to photos"
   opens the share sheet.
@@ -79,5 +107,5 @@ No AI art, no text copied from the books, nothing for sale. Credit fan artists b
 
 ## Next up
 
-Threshing Night (live event, needs a backend), the Commons (discussion, needs a backend), the Dragon Codex
-and an AR relic mark for phones.
+Connecting the Commons to Firebase (see COMMONS_SETUP.md), then Threshing Night, a live monthly event that can
+run on the same Firebase project.

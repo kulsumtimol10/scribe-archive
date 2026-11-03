@@ -1,3 +1,5 @@
+import { seeded } from './seeded';
+
 /**
  * The Gauntlet: a timed climb up a rock face in three sections. The climber
  * grabs holds one at a time, left or right. A wrong grab slips back a hold;
@@ -21,17 +23,6 @@ export const SECTIONS: { id: Section; name: string; from: number }[] = [
 ];
 
 export const HOLDS = 48;
-
-/** Mulberry32: repeatable randomness from a seed. */
-function seeded(seed: number): () => number {
-  let a = seed | 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /** Today's wall, by local date: 20261103 for 3 November 2026. */
 export function dailySeed(date: Date = new Date()): number {

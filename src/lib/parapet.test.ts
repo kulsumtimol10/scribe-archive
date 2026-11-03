@@ -1,16 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { advance, FALL_AT, formatTime, IDLE, parseBest, start, type Crossing, type Input, type Weather } from './parapet';
-
-/** A repeatable stand-in for Math.random. */
-function seeded(seed: number) {
-  let a = seed;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+import { seeded } from './seeded';
 
 /** Plays until the crossing ends or time runs out. */
 function play(weather: Weather, seed: number, decide: (c: Crossing) => Input, limit = 120, fps = 60): Crossing {

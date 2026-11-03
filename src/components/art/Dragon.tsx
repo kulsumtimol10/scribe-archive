@@ -35,7 +35,7 @@ interface DragonProps {
 export function Dragon({ colours, rimFilter, rimOpacity = 0.6, transform }: DragonProps) {
   return (
     <g transform={transform}>
-      <path d={FAR_WING} style={{ fill: colours.wing }} opacity={0.85} />
+      <path d={FAR_WING} className="dragon-wing far" style={{ fill: colours.wing }} opacity={0.85} />
       <g
         filter={rimFilter ? `url(#${rimFilter})` : undefined}
         style={{ fill: 'none', stroke: colours.rim }}
@@ -47,7 +47,7 @@ export function Dragon({ colours, rimFilter, rimOpacity = 0.6, transform }: Drag
       </g>
       <path d={BODY} style={{ fill: colours.body }} />
       <path d={SPINES} style={{ fill: colours.body }} />
-      <path d={NEAR_WING} style={{ fill: colours.wing }} />
+      <path d={NEAR_WING} className="dragon-wing near" style={{ fill: colours.wing }} />
       <path d={WING_BONES} style={{ fill: 'none', stroke: colours.bone }} strokeWidth={2.5} />
       <circle cx={556} cy={130} r={2.6} style={{ fill: colours.eye }} />
     </g>

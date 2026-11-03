@@ -16,7 +16,7 @@ export interface TextLine {
 
 /** JPEG, not PNG: the film grain makes lossless files over 5 MB, too heavy for phones. */
 export const IMAGE_TYPE = 'image/jpeg';
-const IMAGE_QUALITY = 0.92;
+export const IMAGE_QUALITY = 0.92;
 
 /** Where to draw a line's x so letter-spaced, centred text sits truly centred. */
 export function textX(line: TextLine): number {

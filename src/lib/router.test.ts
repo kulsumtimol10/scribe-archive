@@ -5,12 +5,16 @@ describe('routeOf at the site root', () => {
   it('finds each page', () => {
     expect(routeOf('/', '')).toBe('home');
     expect(routeOf('/map', '')).toBe('map');
+    expect(routeOf('/fly', '')).toBe('fly');
     expect(routeOf('/threshing', '')).toBe('threshing');
+    expect(routeOf('/codex', '')).toBe('codex');
     expect(routeOf('/trials', '')).toBe('trials');
     expect(routeOf('/trials/parapet', '')).toBe('parapet');
     expect(routeOf('/trials/gauntlet', '')).toBe('gauntlet');
     expect(routeOf('/trials/war-games', '')).toBe('warGames');
     expect(routeOf('/read', '')).toBe('read');
+    expect(routeOf('/relic', '')).toBe('relic');
+    expect(routeOf('/commons', '')).toBe('commons');
     expect(routeOf('/wallpapers', '')).toBe('wallpapers');
   });
 
@@ -19,7 +23,7 @@ describe('routeOf at the site root', () => {
   });
 
   it('returns null for unknown pages', () => {
-    expect(routeOf('/commons', '')).toBeNull();
+    expect(routeOf('/the-commons', '')).toBeNull();
     expect(routeOf('/read/more', '')).toBeNull();
   });
 });

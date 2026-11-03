@@ -29,9 +29,14 @@ export function usePathname(): string {
   return useSyncExternalStore(subscribe, () => window.location.pathname);
 }
 
-/** Moves to another page without a reload and starts it at the top. */
+/** The address's query string ("?t=abc"), for pages that keep state there. */
+export function useSearch(): string {
+  return useSyncExternalStore(subscribe, () => window.location.search);
+}
+
+/** Moves to another page (or the same page with a new query) without a reload, starting at the top. */
 export function navigate(path: string): void {
-  if (path === window.location.pathname) return;
+  if (path === window.location.pathname + window.location.search) return;
   history.pushState(null, '', path);
   window.dispatchEvent(new PopStateEvent('popstate'));
   window.scrollTo(0, 0);

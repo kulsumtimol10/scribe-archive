@@ -1,0 +1,160 @@
+rules_version = '2';
+
+// Security rules for the Commons. Paste this whole file into
+// Firebase console › Firestore Database › Rules, then Publish.
+// The site only ever writes what these rules allow; anything else is refused.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function isMod() { return signedIn() && exists(/databases/$(database)/documents/moderators/$(me())); }
+    function text(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+    function riderPath() { return /databases/$(database)/documents/riders/$(me()); }
+    function rider() { return get(riderPath()).data; }
+    function colour(v) { return v in ['red', 'green', 'blue', 'orange', 'brown', 'black']; }
+    function spoiler(v) { return v in [0, 1, 2, 3]; }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    // Every post moves the rider's clock in the same write; the riders rule holds the 20-second gap.
+    function pacedPost() { return getAfter(riderPath()).data.lastPostAt == request.time; }
+    // The post carries the poster's own current name and colour.
+    function signedBy(d) {
+      return d.authorId == me() && d.authorName == rider().name && d.authorColour == rider().colour;
+    }
+    // Moderators hide or restore; authors may only take their own post down.
+    function hiding() {
+      return changed().hasOnly(['hidden'])
+        && (isMod() || (signedIn() && resource.data.authorId == me() && request.resource.data.hidden == true));
+    }
+
+    match /moderators/{uid} {
+      // Readers may check whether they are a moderator. Add moderators by hand in the console.
+      allow read: if signedIn() && uid == me();
+      allow write: if false;
+    }
+
+    match /riders/{uid} {
+      allow read: if signedIn() && uid == me();
+      allow create: if signedIn() && uid == me()
+        && request.resource.data.keys().hasOnly(['name', 'colour', 'lastPostAt'])
+        && text(request.resource.data.name, 2, 24)
+        && colour(request.resource.data.colour)
+        && request.resource.data.lastPostAt == timestamp.date(2000, 1, 1);
+      allow update: if signedIn() && uid == me() && (
+        (changed().hasOnly(['name', 'colour'])
+          && text(request.resource.data.name, 2, 24)
+          && colour(request.resource.data.colour))
+        || (changed().hasOnly(['lastPostAt'])
+          && request.resource.data.lastPostAt == request.time
+          && resource.data.lastPostAt < request.time - duration.value(20, 's'))
+      );
+
+      match /scales/{threadId} {
+        allow read: if signedIn() && uid == me();
+        // Giving or taking back a scale moves the thread's count by exactly one, in the same write.
+        allow create: if signedIn() && uid == me()
+          && request.resource.data.keys().hasOnly(['at'])
+          && request.resource.data.at == request.time
+          && getAfter(/databases/$(database)/documents/threads/$(threadId)).data.scaleCount
+            == get(/databases/$(database)/documents/threads/$(threadId)).data.scaleCount + 1;
+        allow delete: if signedIn() && uid == me()
+          && getAfter(/databases/$(database)/documents/threads/$(threadId)).data.scaleCount
+            == get(/databases/$(database)/documents/threads/$(threadId)).data.scaleCount - 1;
+      }
+
+      match /votes/{book} {
+        allow read: if signedIn() && uid == me();
+        allow create, update: if signedIn() && uid == me()
+          && book in ['1', '2', '3']
+          && request.resource.data.keys().hasOnly(['scales'])
+          && request.resource.data.scales is int
+          && request.resource.data.scales >= 1 && request.resource.data.scales <= 5
+          && getAfter(/databases/$(database)/documents/ratings/$(book)).data.total
+            == (exists(/databases/$(database)/documents/ratings/$(book))
+                ? get(/databases/$(database)/documents/ratings/$(book)).data.total : 0)
+              - (resource == null ? 0 : resource.data.scales)
+              + request.resource.data.scales;
+      }
+    }
+
+    match /ratings/{book} {
+      function votePath() { return /databases/$(database)/documents/riders/$(me())/votes/$(book); }
+      function before(field) { return resource == null ? 0 : resource.data[field]; }
+      allow read: if true;
+      // The totals only move with a rider's own vote, in the same write.
+      allow create, update: if signedIn()
+        && book in ['1', '2', '3']
+        && request.resource.data.keys().hasOnly(['total', 'count'])
+        && existsAfter(votePath())
+        && request.resource.data.count == before('count') + (exists(votePath()) ? 0 : 1)
+        && request.resource.data.total == before('total')
+          - (exists(votePath()) ? get(votePath()).data.scales : 0)
+          + getAfter(votePath()).data.scales;
+    }
+
+    match /threads/{threadId} {
+      function replyPath(id) { return /databases/$(database)/documents/threads/$(threadId)/replies/$(id); }
+      function scalePath() { return /databases/$(database)/documents/riders/$(me())/scales/$(threadId); }
+
+      allow read: if resource.data.hidden == false || isMod();
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['hall', 'title', 'body', 'spoiler', 'authorId', 'authorName', 'authorColour',
+          'createdAt', 'lastActivity', 'replyCount', 'scaleCount', 'hidden'])
+        && request.resource.data.keys().hasAll(['hall', 'title', 'body', 'spoiler', 'authorId', 'authorName', 'authorColour',
+          'createdAt', 'lastActivity', 'replyCount', 'scaleCount', 'hidden'])
+        && signedBy(request.resource.data)
+        && request.resource.data.hall in ['fourth-wing', 'iron-flame', 'onyx-storm', 'theories', 'reviews', 'fan-art', 'buddy-reads']
+        && text(request.resource.data.title, 4, 140)
+        && text(request.resource.data.body, 1, 5000)
+        && spoiler(request.resource.data.spoiler)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.lastActivity == request.time
+        && request.resource.data.replyCount == 0
+        && request.resource.data.scaleCount == 0
+        && request.resource.data.hidden == false
+        && pacedPost();
+
+      allow update: if hiding()
+        // A reply lands: the count goes up by one, alongside that new reply.
+        || (signedIn()
+          && changed().hasOnly(['replyCount', 'lastActivity', 'lastReplyId'])
+          && request.resource.data.replyCount == resource.data.replyCount + 1
+          && request.resource.data.lastActivity == request.time
+          && !exists(replyPath(request.resource.data.lastReplyId))
+          && existsAfter(replyPath(request.resource.data.lastReplyId)))
+        // A scale given or taken back, alongside the rider's own mark.
+        || (signedIn()
+          && changed().hasOnly(['scaleCount'])
+          && ((request.resource.data.scaleCount == resource.data.scaleCount + 1 && !exists(scalePath()) && existsAfter(scalePath()))
+            || (request.resource.data.scaleCount == resource.data.scaleCount - 1 && exists(scalePath()) && !existsAfter(scalePath()))));
+
+      match /replies/{replyId} {
+        allow read: if resource.data.hidden == false || isMod();
+        allow create: if signedIn()
+          && request.resource.data.keys().hasOnly(['body', 'spoiler', 'authorId', 'authorName', 'authorColour', 'createdAt', 'hidden'])
+          && request.resource.data.keys().hasAll(['body', 'spoiler', 'authorId', 'authorName', 'authorColour', 'createdAt', 'hidden'])
+          && signedBy(request.resource.data)
+          && text(request.resource.data.body, 1, 3000)
+          && spoiler(request.resource.data.spoiler)
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.hidden == false
+          && get(/databases/$(database)/documents/threads/$(threadId)).data.hidden == false
+          && getAfter(/databases/$(database)/documents/threads/$(threadId)).data.lastReplyId == replyId
+          && pacedPost();
+        allow update: if hiding();
+      }
+    }
+
+    match /reports/{reportId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['path', 'reason', 'reporterId', 'createdAt'])
+        && request.resource.data.reporterId == me()
+        && text(request.resource.data.path, 3, 200)
+        && request.resource.data.reason in ['spoiler', 'unkind', 'spam', 'other']
+        && request.resource.data.createdAt == request.time;
+      allow read, delete: if isMod();
+    }
+  }
+}

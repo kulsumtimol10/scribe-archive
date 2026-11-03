@@ -8,20 +8,12 @@ import { usePilot } from '../lib/pilot';
 import { PATHS } from '../lib/router';
 import { useTheme } from '../lib/theme';
 import { GATES, GHOST_STEP, loadRecord, recordRun, throughGate, type GhostSample } from '../lib/warGames';
+import { hasWebGL } from '../lib/webgl';
 
 // The 3D engine is large, so it only loads on the pages that use it.
 const WarGamesScene = lazy(() => import('../scenes/WarGamesScene').then((m) => ({ default: m.WarGamesScene })));
 
 type Screen = 'menu' | 'racing' | 'finished';
-
-function hasWebGL(): boolean {
-  try {
-    const canvas = document.createElement('canvas');
-    return Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
-  } catch {
-    return false;
-  }
-}
 
 const calm = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 

@@ -1,8 +1,12 @@
 import { Footer, Header, TabBar } from './components/Chrome';
 import { Link } from './components/Link';
 import { ArchiveMapPage } from './pages/ArchiveMap';
+import { CodexPage } from './pages/Codex';
+import { CommonsPage } from './pages/Commons';
+import { FlyPage } from './pages/Fly';
 import { HomePage } from './pages/Home';
 import { ReadPage } from './pages/Read';
+import { RelicPage } from './pages/Relic';
 import { SkyChooser } from './pages/SkyChooser';
 import { GauntletPage } from './pages/Gauntlet';
 import { ParapetPage } from './pages/Parapet';
@@ -19,8 +23,12 @@ function Page({ route }: { route: Route | null }) {
       return <HomePage />;
     case 'map':
       return <ArchiveMapPage />;
+    case 'fly':
+      return <FlyPage />;
     case 'threshing':
       return <ThreshingPage />;
+    case 'codex':
+      return <CodexPage />;
     case 'trials':
       return <TrialsPage />;
     case 'parapet':
@@ -31,6 +39,10 @@ function Page({ route }: { route: Route | null }) {
       return <WarGamesPage />;
     case 'read':
       return <ReadPage />;
+    case 'relic':
+      return <RelicPage />;
+    case 'commons':
+      return <CommonsPage />;
     case 'wallpapers':
       return <WallpapersPage />;
     default:

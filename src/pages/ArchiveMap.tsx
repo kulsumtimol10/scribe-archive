@@ -8,18 +8,10 @@ import { usePilot } from '../lib/pilot';
 import { PATHS } from '../lib/router';
 import { BOOK_NAMES, loadBook, saveBook, type Book } from '../lib/spoilers';
 import { useTheme } from '../lib/theme';
+import { hasWebGL } from '../lib/webgl';
 
 // The 3D engine is large, so it only loads on this page.
 const ArchiveMapScene = lazy(() => import('../scenes/ArchiveMapScene').then((m) => ({ default: m.ArchiveMapScene })));
-
-function hasWebGL(): boolean {
-  try {
-    const canvas = document.createElement('canvas');
-    return Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
-  } catch {
-    return false;
-  }
-}
 
 const calm = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 

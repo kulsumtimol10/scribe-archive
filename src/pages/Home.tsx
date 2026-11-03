@@ -10,6 +10,18 @@ const OPEN = [
     text: 'Six steps across the field. One dragon chooses you, and you leave with a rider card made for your stories.',
   },
   {
+    href: PATHS.codex,
+    kicker: 'The Dragon Codex',
+    name: 'Tairn vs Sgaeyl',
+    text: 'Set any two dragons side by side, turn them in 3D, and see how your own Threshing dragon measures up.',
+  },
+  {
+    href: PATHS.fly,
+    kicker: 'Fly with Tairn',
+    name: 'Six chapters, one flight',
+    text: 'Scroll from Basgiath through the storm to the border at dawn, with the wind and the thunder turned on.',
+  },
+  {
     href: PATHS.map,
     kicker: 'The Archive map',
     name: 'Fly over Navarre',
@@ -22,10 +34,22 @@ const OPEN = [
     text: 'Cross the Parapet in a storm, climb a new Gauntlet every day, and race your own ghost through the War Games.',
   },
   {
+    href: PATHS.commons,
+    kicker: 'The Commons',
+    name: 'Talk with other riders',
+    text: 'Theories, reviews in dragon scales and chapter-ending screaming, all behind a spoiler shield set to your book.',
+  },
+  {
     href: PATHS.read,
     kicker: 'Soundscapes',
     name: 'Read with Basgiath',
     text: 'Rain on the Parapet, wind through the Vale, a hearth in the dorms. Mix your own storm and keep it on while you read.',
+  },
+  {
+    href: PATHS.relic,
+    kicker: 'The relic',
+    name: 'Wear your mark',
+    text: 'A swirling mark drawn from your name. Place it on your arm with your camera and keep the photo.',
   },
   {
     href: PATHS.wallpapers,
@@ -37,7 +61,6 @@ const OPEN = [
 
 const FORGING = [
   { name: 'Threshing Night', text: 'Once a month, every reader walks the field at the same time.' },
-  { name: 'The Commons', text: 'Theories, reviews and spoiler-shielded talk with other riders.' },
 ];
 
 export function HomePage() {
@@ -56,8 +79,8 @@ export function HomePage() {
             <Link href={PATHS.threshing} className="button primary">
               Find your dragon
             </Link>
-            <Link href={PATHS.read} className="button">
-              Read with Basgiath
+            <Link href={PATHS.fly} className="button">
+              Fly with Tairn
             </Link>
           </div>
         </div>
