@@ -106,6 +106,11 @@ GitHub Pages, at https://kulsumtimol10.github.io/scribe-archive/. Every push to 
 - Pages can't rewrite URLs, so the build copies `index.html` into each page's folder (`read/`, `wallpapers/`)
   and to `404.html`. A new page only needs adding to `src/lib/routes.ts`.
 
+- Link previews (TikTok, Instagram, iMessage, Discord) use `public/og-image.jpg` (1200×630); the tab icon is
+  `public/favicon.svg` and the phone home-screen icon `public/apple-touch-icon.png`.
+- `package.json` pins a patched `@grpc/grpc-js`: Firebase still asks for an old one for its server-side code,
+  which the site never loads, and the override keeps security audits clean.
+
 ## Ground rules
 
 No AI art, no text copied from the books, nothing for sale. Credit fan artists by name, with permission.
