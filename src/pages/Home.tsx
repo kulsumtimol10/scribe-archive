@@ -4,6 +4,12 @@ import { PATHS } from '../lib/router';
 
 const OPEN = [
   {
+    href: PATHS.threshing,
+    kicker: 'The Threshing',
+    name: 'Find your dragon',
+    text: 'Six steps across the field. One dragon chooses you, and you leave with a rider card made for your stories.',
+  },
+  {
     href: PATHS.read,
     kicker: 'Soundscapes',
     name: 'Read with Basgiath',
@@ -18,7 +24,6 @@ const OPEN = [
 ];
 
 const FORGING = [
-  { name: 'The Threshing', text: 'Walk the field and find out which dragon chooses you.' },
   { name: 'Threshing Night', text: 'Once a month, every reader walks the field at the same time.' },
   { name: 'The Trials', text: 'Cross the Parapet, climb the Gauntlet, survive the War Games.' },
   { name: 'The Commons', text: 'Theories, reviews and spoiler-shielded talk with other riders.' },
@@ -38,11 +43,11 @@ export function HomePage() {
             come back for what's being forged next.
           </p>
           <div className="actions">
-            <Link href={PATHS.read} className="button primary">
-              Read with Basgiath
+            <Link href={PATHS.threshing} className="button primary">
+              Find your dragon
             </Link>
-            <Link href={PATHS.wallpapers} className="button">
-              Make a wallpaper
+            <Link href={PATHS.read} className="button">
+              Read with Basgiath
             </Link>
           </div>
         </div>

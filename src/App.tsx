@@ -3,6 +3,7 @@ import { Link } from './components/Link';
 import { HomePage } from './pages/Home';
 import { ReadPage } from './pages/Read';
 import { SkyChooser } from './pages/SkyChooser';
+import { ThreshingPage } from './pages/Threshing';
 import { WallpapersPage } from './pages/Wallpapers';
 import { PATHS, routeOf, usePathname, type Route } from './lib/router';
 import { useTheme } from './lib/theme';
@@ -11,6 +12,8 @@ function Page({ route }: { route: Route | null }) {
   switch (route) {
     case 'home':
       return <HomePage />;
+    case 'threshing':
+      return <ThreshingPage />;
     case 'read':
       return <ReadPage />;
     case 'wallpapers':

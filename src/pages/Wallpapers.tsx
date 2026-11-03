@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { WallpaperArt } from '../components/art/WallpaperArt';
+import { IMAGE_TYPE, renderImage } from '../lib/render';
+import { canShareImages, saveFile, shareFile } from '../lib/share';
+import { choose, loadBond } from '../lib/threshing';
 import {
-  DRAGONS,
+  dragonsFor,
   FORMATS,
-  renderWallpaper,
   SKIES,
-  WALLPAPER_TYPE,
   wallpaperFileName,
   wallpaperText,
   type DragonId,
@@ -15,29 +16,18 @@ import {
 
 type Status = { kind: 'idle' } | { kind: 'working' } | { kind: 'done'; message: string } | { kind: 'error'; message: string };
 
-function canShareImages(): boolean {
-  try {
-    const probe = new File([new Uint8Array(1)], 'probe.jpg', { type: WALLPAPER_TYPE });
-    return typeof navigator.canShare === 'function' && navigator.canShare({ files: [probe] });
-  } catch {
-    return false;
-  }
-}
-
-function saveBlob(blob: Blob, fileName: string) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
-}
-
 export function WallpapersPage() {
+  // Readers who walked the Threshing find their own dragon first in line.
+  const bond = useMemo(() => {
+    const saved = loadBond();
+    return saved ? choose(saved.answers, saved.rider) : null;
+  }, []);
+  const dragons = dragonsFor(bond);
+
   const art = useRef<SVGSVGElement>(null);
-  const [dragon, setDragon] = useState<DragonId>('tairn');
+  const [dragon, setDragon] = useState<DragonId>(bond ? 'mine' : 'tairn');
   const [sky, setSky] = useState<SkyId>('storm');
-  const [name, setName] = useState('');
+  const [name, setName] = useState(bond?.rider ?? '');
   const [relic, setRelic] = useState(true);
   const [format, setFormat] = useState<WallpaperFormat>('phone');
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
@@ -45,15 +35,15 @@ export function WallpapersPage() {
 
   useEffect(() => setShareable(canShareImages()), []);
 
-  const lines = wallpaperText(format, name, dragon);
-  const fileName = wallpaperFileName(dragon, sky, format);
+  const lines = wallpaperText(format, name, dragons[dragon].line);
+  const fileName = wallpaperFileName(dragons[dragon].name, sky, format);
 
   const make = async (): Promise<File | null> => {
     if (!art.current) return null;
     setStatus({ kind: 'working' });
     try {
-      const blob = await renderWallpaper(art.current, format, lines);
-      return new File([blob], fileName, { type: WALLPAPER_TYPE });
+      const blob = await renderImage(art.current, FORMATS[format], lines);
+      return new File([blob], fileName, { type: IMAGE_TYPE });
     } catch (err) {
       setStatus({ kind: 'error', message: err instanceof Error ? err.message : String(err) });
       return null;
@@ -63,7 +53,7 @@ export function WallpapersPage() {
   const download = async () => {
     const file = await make();
     if (!file) return;
-    saveBlob(file, file.name);
+    saveFile(file);
     setStatus({ kind: 'done', message: `Saved ${file.name}` });
   };
 
@@ -71,12 +61,10 @@ export function WallpapersPage() {
     const file = await make();
     if (!file) return;
     try {
-      await navigator.share({ files: [file], title: 'My Scribe Archive wallpaper' });
-      setStatus({ kind: 'done', message: 'Shared. Choose "Save Image" to keep it in your photos.' });
-    } catch (err) {
-      // Closing the share sheet is not an error worth showing.
-      if (err instanceof DOMException && err.name === 'AbortError') setStatus({ kind: 'idle' });
-      else setStatus({ kind: 'error', message: 'Sharing failed. Try Download instead.' });
+      const shared = await shareFile(file, 'My Scribe Archive wallpaper');
+      setStatus(shared ? { kind: 'done', message: 'Shared. Choose "Save Image" to keep it in your photos.' } : { kind: 'idle' });
+    } catch {
+      setStatus({ kind: 'error', message: 'Sharing failed. Try Download instead.' });
     }
   };
 
@@ -91,7 +79,7 @@ export function WallpapersPage() {
             className="device-screen"
             style={{ aspectRatio: `${width} / ${height}` }}
             format={format}
-            dragon={dragon}
+            dragon={dragons[dragon]}
             sky={sky}
             relic={relic}
             lines={lines}
@@ -108,10 +96,10 @@ export function WallpapersPage() {
         <fieldset className="field">
           <legend>Dragon</legend>
           <div className="chips">
-            {(Object.keys(DRAGONS) as DragonId[]).map((id) => (
+            {(Object.keys(dragons) as DragonId[]).map((id) => (
               <button key={id} type="button" className="chip" aria-pressed={dragon === id} onClick={() => setDragon(id)}>
-                <span className="dot" style={{ background: DRAGONS[id].swatch, borderColor: DRAGONS[id].colours.rim }} aria-hidden="true" />
-                {DRAGONS[id].name}
+                <span className="dot" style={{ background: dragons[id].swatch, borderColor: dragons[id].colours.rim }} aria-hidden="true" />
+                {dragons[id].name}
               </button>
             ))}
           </div>

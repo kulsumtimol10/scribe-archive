@@ -5,6 +5,7 @@ import { ThemeSwitch } from './ThemeSwitch';
 
 const NAV: { route: Route; label: string }[] = [
   { route: 'home', label: 'Home' },
+  { route: 'threshing', label: 'Threshing' },
   { route: 'read', label: 'Read' },
   { route: 'wallpapers', label: 'Wallpapers' },
 ];

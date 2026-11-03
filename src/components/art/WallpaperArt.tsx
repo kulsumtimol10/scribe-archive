@@ -1,10 +1,12 @@
 import type { CSSProperties, Ref } from 'react';
-import { DRAGONS, FORMATS, SKIES, type DragonId, type SkyId, type TextLine, type WallpaperFormat } from '../../lib/wallpaper';
+import type { TextLine } from '../../lib/render';
+import { FORMATS, SKIES, type SkyId, type WallpaperDragon, type WallpaperFormat } from '../../lib/wallpaper';
 import { Dragon } from './Dragon';
+import { SvgText } from './SvgText';
 
 interface WallpaperArtProps {
   format: WallpaperFormat;
-  dragon: DragonId;
+  dragon: WallpaperDragon;
   sky: SkyId;
   relic: boolean;
   lines: TextLine[];
@@ -22,7 +24,7 @@ const RELIC = 'M150,548 C166,556 172,572 160,580 C150,586 140,578 146,570 C152,5
 export function WallpaperArt({ format, dragon, sky, relic, lines, ref, className, style }: WallpaperArtProps) {
   const { width, height } = FORMATS[format];
   const s = SKIES[sky];
-  const d = DRAGONS[dragon];
+  const d = dragon;
 
   return (
     <svg
@@ -92,23 +94,7 @@ export function WallpaperArt({ format, dragon, sky, relic, lines, ref, className
 
       <rect width={width} height={height} filter="url(#wp-grain)" opacity="0.07" />
 
-      {lines.map((line) => (
-        <text
-          key={line.text + line.y}
-          data-text=""
-          x={line.align === 'center' ? line.x + line.letterSpacing / 2 : line.x}
-          y={line.y}
-          fill={line.colour}
-          fillOpacity={line.opacity}
-          fontFamily={`${line.family}, Georgia, serif`}
-          fontWeight={line.weight}
-          fontSize={line.size}
-          letterSpacing={line.letterSpacing}
-          textAnchor={line.align === 'center' ? 'middle' : 'start'}
-        >
-          {line.text}
-        </text>
-      ))}
+      <SvgText lines={lines} />
     </svg>
   );
 }

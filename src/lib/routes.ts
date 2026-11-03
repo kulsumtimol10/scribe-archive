@@ -1,4 +1,4 @@
-export type Route = 'home' | 'read' | 'wallpapers';
+export type Route = 'home' | 'threshing' | 'read' | 'wallpapers';
 
 /**
  * Each page's path inside the site, before the folder it is hosted under.
@@ -6,6 +6,7 @@ export type Route = 'home' | 'read' | 'wallpapers';
  */
 export const ROUTES: Record<Route, string> = {
   home: '/',
+  threshing: '/threshing',
   read: '/read',
   wallpapers: '/wallpapers',
 };

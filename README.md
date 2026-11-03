@@ -9,6 +9,11 @@ Rebecca Yarros, Entangled Publishing or Red Tower Books.
   from the header (swatches on phones). The choice is saved in the browser and painted before first render, so
   there is no flash of the other theme. Every colour lives in CSS variables in `src/styles.css`.
 - **Home.** A cinematic hero: lightning over Basgiath, a gliding dragon, drifting mist and film grain.
+- **The Threshing** (`/threshing`). Six questions on a night field full of watching eyes, then a dragon
+  chooses you: colour, tail, a generated name, a signet (one in twenty gets the rare one) and a wing. The
+  result depends only on the answers and the rider's name (`src/lib/threshing.ts`), so it's saved by
+  storing just those. Download or share a 1080×1920 rider card for stories; the wallpaper studio then
+  offers the reader's own dragon first.
 - **Read with Basgiath** (`/read`). Six ambient layers (rain, wind, hearth, thunder, wingbeats, scribe quills)
   synthesised live with the Web Audio API, so there are no recordings to license. Presets, per-layer sliders
   and a reading timer that fades the sound out.
@@ -43,5 +48,5 @@ No AI art, no text copied from the books, nothing for sale. Credit fan artists b
 
 ## Next up
 
-The Threshing (dragon quiz with a shareable rider card), Threshing Night (live event), the Trials (games),
-the Commons (discussion, needs a backend) and the 3D Archive map.
+Threshing Night (live event, needs a backend), the Trials (games), the Commons (discussion, needs a
+backend) and the 3D Archive map.

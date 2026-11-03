@@ -1,4 +1,6 @@
 import type { DragonColours } from '../components/art/Dragon';
+import type { TextLine } from './render';
+import { COLOURS, type Bond } from './threshing';
 
 export type WallpaperFormat = 'phone' | 'desktop';
 
@@ -8,9 +10,16 @@ export const FORMATS: Record<WallpaperFormat, { width: number; height: number; l
   desktop: { width: 2560, height: 1440, label: 'Desktop' },
 };
 
-export type DragonId = 'tairn' | 'sgaeyl' | 'andarna' | 'red';
+export type DragonId = 'tairn' | 'sgaeyl' | 'andarna' | 'mine';
 
-export const DRAGONS: Record<DragonId, { name: string; line: string; swatch: string; colours: DragonColours }> = {
+export interface WallpaperDragon {
+  name: string;
+  line: string;
+  swatch: string;
+  colours: DragonColours;
+}
+
+export const DRAGONS: Record<DragonId, WallpaperDragon> = {
   tairn: {
     name: 'Tairn',
     line: 'BLACK MORNINGSTARTAIL',
@@ -29,13 +38,28 @@ export const DRAGONS: Record<DragonId, { name: string; line: string; swatch: str
     swatch: '#d9a441',
     colours: { body: '#7a5414', wing: '#8a6020', bone: '#b88a3c', rim: '#ffe3a0', eye: '#fff1c4' },
   },
-  red: {
-    name: 'My red',
+  mine: {
+    name: 'My dragon',
     line: 'RED SWORDTAIL',
     swatch: '#9b2a24',
-    colours: { body: '#5e1714', wing: '#6e1c18', bone: '#9b3a30', rim: '#ff8a80', eye: '#f2c46b' },
+    colours: COLOURS.red.art,
   },
 };
+
+/** The wallpaper dragons, with "My dragon" becoming the one that chose this reader at the Threshing. */
+export function dragonsFor(bond: Bond | null): Record<DragonId, WallpaperDragon> {
+  if (!bond) return DRAGONS;
+  const colour = COLOURS[bond.colour];
+  return {
+    ...DRAGONS,
+    mine: {
+      name: bond.dragonName,
+      line: `${colour.name} ${bond.tail}`.toUpperCase(),
+      swatch: colour.glow,
+      colours: colour.art,
+    },
+  };
+}
 
 export type SkyId = 'storm' | 'dawn' | 'vale';
 
@@ -45,19 +69,6 @@ export const SKIES: Record<SkyId, { name: string; top: string; mid: string; glow
   vale: { name: 'The Vale', top: '#08130f', mid: '#2c4a3a', glow: '#b8f0d0', moon: 0.35, lightning: false },
 };
 
-export interface TextLine {
-  text: string;
-  x: number;
-  y: number;
-  size: number;
-  weight: number;
-  family: string;
-  colour: string;
-  opacity: number;
-  letterSpacing: number;
-  align: 'left' | 'center';
-}
-
 const MAX_NAME = 18;
 
 /** The rider name as printed: tidy, capitalised and short enough to fit. */
@@ -66,79 +77,24 @@ export function riderName(input: string): string {
   return name ? name.toUpperCase() : 'CADET';
 }
 
+const CINZEL = 'Cinzel, Georgia, serif';
+
 /** The words on a wallpaper. The preview draws them as SVG; the export draws them on a canvas. */
-export function wallpaperText(format: WallpaperFormat, name: string, dragon: DragonId): TextLine[] {
-  const base = { family: 'Cinzel', colour: '#ffffff' };
+export function wallpaperText(format: WallpaperFormat, name: string, dragonLine: string): TextLine[] {
+  const base = { family: CINZEL, colour: '#ffffff' };
   if (format === 'phone') {
     return [
       { ...base, text: riderName(name), x: 645, y: 2606, size: 62, weight: 700, opacity: 0.92, letterSpacing: 21, align: 'center' },
-      { ...base, text: DRAGONS[dragon].line, x: 645, y: 2690, size: 34, weight: 500, opacity: 0.6, letterSpacing: 12, align: 'center' },
+      { ...base, text: dragonLine, x: 645, y: 2690, size: 34, weight: 500, opacity: 0.6, letterSpacing: 12, align: 'center' },
     ];
   }
   return [
     { ...base, text: riderName(name), x: 142, y: 1316, size: 56, weight: 700, opacity: 0.92, letterSpacing: 18, align: 'left' },
-    { ...base, text: DRAGONS[dragon].line, x: 142, y: 1376, size: 28, weight: 500, opacity: 0.6, letterSpacing: 10, align: 'left' },
+    { ...base, text: dragonLine, x: 142, y: 1376, size: 28, weight: 500, opacity: 0.6, letterSpacing: 10, align: 'left' },
   ];
 }
 
-export function wallpaperFileName(dragon: DragonId, sky: SkyId, format: WallpaperFormat): string {
-  return `scribe-archive-${dragon}-${sky}-${format}.jpg`;
-}
-
-/** JPEG, not PNG: the film grain makes a lossless file over 5 MB, too heavy for phones. */
-export const WALLPAPER_TYPE = 'image/jpeg';
-const WALLPAPER_QUALITY = 0.92;
-
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error('The wallpaper art could not be drawn'));
-    image.src = src;
-  });
-}
-
-/**
- * Draws the preview's art at full size and writes the text on top. Text goes
- * on the canvas because an SVG drawn as an image can't use the page's web fonts.
- */
-export async function renderWallpaper(svg: SVGSVGElement, format: WallpaperFormat, lines: TextLine[]): Promise<Blob> {
-  const { width, height } = FORMATS[format];
-  const art = svg.cloneNode(true) as SVGSVGElement;
-  art.querySelectorAll('[data-text]').forEach((node) => node.remove());
-  art.setAttribute('width', String(width));
-  art.setAttribute('height', String(height));
-  art.removeAttribute('class');
-  const markup = new XMLSerializer().serializeToString(art);
-  const image = await loadImage(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`);
-
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('This browser cannot make images');
-  ctx.drawImage(image, 0, 0, width, height);
-
-  for (const line of lines) {
-    const font = `${line.weight} ${line.size}px ${line.family}, Georgia, serif`;
-    await document.fonts.load(font, line.text);
-    ctx.font = font;
-    ctx.fillStyle = line.colour;
-    ctx.globalAlpha = line.opacity;
-    ctx.textAlign = line.align;
-    ctx.textBaseline = 'alphabetic';
-    if ('letterSpacing' in ctx) ctx.letterSpacing = `${line.letterSpacing}px`;
-    // Canvas letter spacing also trails the last letter; nudge centred text back by half of it.
-    const x = line.align === 'center' ? line.x + line.letterSpacing / 2 : line.x;
-    ctx.fillText(line.text, x, line.y);
-  }
-  ctx.globalAlpha = 1;
-
-  return new Promise((resolve, reject) =>
-    canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error('The image could not be saved'))),
-      WALLPAPER_TYPE,
-      WALLPAPER_QUALITY,
-    ),
-  );
+export function wallpaperFileName(dragonName: string, sky: SkyId, format: WallpaperFormat): string {
+  const slug = dragonName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'dragon';
+  return `scribe-archive-${slug}-${sky}-${format}.jpg`;
 }

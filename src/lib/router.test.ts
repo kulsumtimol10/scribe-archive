@@ -4,6 +4,7 @@ import { routeOf } from './router';
 describe('routeOf at the site root', () => {
   it('finds each page', () => {
     expect(routeOf('/', '')).toBe('home');
+    expect(routeOf('/threshing', '')).toBe('threshing');
     expect(routeOf('/read', '')).toBe('read');
     expect(routeOf('/wallpapers', '')).toBe('wallpapers');
   });
@@ -13,7 +14,7 @@ describe('routeOf at the site root', () => {
   });
 
   it('returns null for unknown pages', () => {
-    expect(routeOf('/threshing', '')).toBeNull();
+    expect(routeOf('/commons', '')).toBeNull();
     expect(routeOf('/read/more', '')).toBeNull();
   });
 });

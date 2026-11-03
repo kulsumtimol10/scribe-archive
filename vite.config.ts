@@ -2,7 +2,7 @@ import { copyFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin } from 'vite';
-import { ROUTES } from './src/lib/routes';
+import { ROUTES } from './src/lib/routes.ts';
 
 /**
  * GitHub Pages serves plain files and can't rewrite URLs. Copy the app shell
