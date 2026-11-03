@@ -389,7 +389,7 @@ function ThreadCard({ thread, shield, revealed, scaled, canScale, onReveal, onSc
   );
 }
 
-function ThreadView({ store, account, id, shield, revealed, onReveal, scales }: {
+function ThreadView({ store, account, id, shield, revealed, onReveal, scales, onScale }: {
   store: CommonsStore;
   account: Account | null;
   id: string;
@@ -397,6 +397,7 @@ function ThreadView({ store, account, id, shield, revealed, onReveal, scales }: 
   revealed: Set<string>;
   onReveal: (key: string) => void;
   scales: Set<string>;
+  onScale: (id: string) => void;
 }) {
   const [thread, setThread] = useState<Thread | null | undefined>(undefined);
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -471,7 +472,7 @@ function ThreadView({ store, account, id, shield, revealed, onReveal, scales }: 
             count={thread.scaleCount}
             on={scales.has(thread.id)}
             enabled={Boolean(account?.rider)}
-            onClick={() => void store.toggleScale(thread.id, !scales.has(thread.id)).catch(() => undefined)}
+            onClick={() => onScale(thread.id)}
           />
           <PostTools store={store} account={account} path={`threads/${thread.id}`} authorId={thread.authorId} />
         </div>
@@ -642,6 +643,7 @@ export function CommonsPage() {
   const [shield, setShield] = useState<Book>(loadBook);
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
   const [renaming, setRenaming] = useState(false);
+  const [scaleProblem, setScaleProblem] = useState('');
 
   useEffect(() => {
     getCommonsStore().then(setStore, (err) => setFailed(errorText(err)));
@@ -665,7 +667,11 @@ export function CommonsPage() {
   const reveal = (key: string) => setRevealed((s) => new Set(s).add(key));
   const scale = (id: string) => {
     if (!store || !account?.rider) return;
-    void store.toggleScale(id, !scales.has(id)).catch(() => undefined);
+    setScaleProblem('');
+    store.toggleScale(id, !scales.has(id)).catch((err) => {
+      console.warn('[Commons] scale failed', err);
+      setScaleProblem('Your scale didn’t save. Try again in a moment.');
+    });
   };
 
   return (
@@ -707,9 +713,14 @@ export function CommonsPage() {
 
         <main className="commons-main" aria-labelledby={threadId ? undefined : 'commons-title'}>
           {failed && <p className="notice error">{failed}</p>}
+          {scaleProblem && (
+            <p className="notice error" role="status">
+              {scaleProblem}
+            </p>
+          )}
           {!store && !failed && <p className="muted">Opening the Commons…</p>}
           {store && threadId && (
-            <ThreadView store={store} account={account} id={threadId} shield={shield} revealed={revealed} onReveal={reveal} scales={scales} />
+            <ThreadView store={store} account={account} id={threadId} shield={shield} revealed={revealed} onReveal={reveal} scales={scales} onScale={scale} />
           )}
           {store && !threadId && (
             <>

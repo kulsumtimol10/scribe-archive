@@ -75,6 +75,7 @@ function toReply(snap: QueryDocumentSnapshot<DocumentData>): Reply {
 /** Turns Firebase's error codes into something a reader can act on. */
 function friendly(err: unknown): Error {
   const code = (err as { code?: string }).code ?? '';
+  console.warn('[Commons]', code || err);
   if (code === 'permission-denied') return new Error('That didn’t go through. If you just posted, wait a few seconds and try again.');
   if (code === 'unavailable') return new Error('The Commons can’t be reached right now. Check your connection.');
   if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return new Error('Sign-in was closed before it finished.');
