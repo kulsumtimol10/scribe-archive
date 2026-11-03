@@ -22,6 +22,7 @@ interface MoreItem {
 
 /** Behind "More" in the header: the quieter pages. */
 const MORE: MoreItem[] = [
+  { route: 'night', label: 'Threshing Night', note: 'Once a month, everyone at once' },
   { route: 'read', label: 'Read with Basgiath', note: 'Soundscapes for reading' },
   { route: 'relic', label: 'The relic', note: 'Wear your mark' },
   { route: 'wallpapers', label: 'Wallpapers', note: 'Carry your dragon' },

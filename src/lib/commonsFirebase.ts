@@ -17,6 +17,7 @@ import {
   type Thread,
 } from './commons';
 import type { Book } from './spoilers';
+import { EMPTY_COUNTS, NIGHT_COLOURS, PRACTICE_ID, type NightBond, type NightCounts } from './threshingNight';
 
 /**
  * The real Commons, on Firebase: Google or email-link sign-in, posts in
@@ -31,6 +32,8 @@ import type { Book } from './spoilers';
  *   ratings/{book}               running total and count of ratings
  *   reports/{id}                 posts flagged for the moderators
  *   moderators/{uid}             who can hide posts (set in the console)
+ *   nights/{yyyy-mm}             Threshing Night's counts, one per colour and a total
+ *   nights/{yyyy-mm}/bonds/{uid} each rider's dragon on that night's field
  */
 
 const EMAIL_KEY = 'scribe-archive:sign-in-email';
@@ -56,6 +59,19 @@ function toThread(snap: DocumentSnapshot<DocumentData> | QueryDocumentSnapshot<D
     scaleCount: d.scaleCount ?? 0,
     hidden: Boolean(d.hidden),
   };
+}
+
+function toBond(snap: DocumentSnapshot<DocumentData> | QueryDocumentSnapshot<DocumentData>): NightBond {
+  const d = snap.data({ serverTimestamps: 'estimate' }) ?? {};
+  return { uid: snap.id, riderName: d.riderName, dragonName: d.dragonName, colour: d.colour, tail: d.tail, at: millis(d.at) };
+}
+
+function toCounts(data: DocumentData | undefined): NightCounts {
+  const counts: NightCounts = { ...EMPTY_COUNTS };
+  if (!data) return counts;
+  for (const colour of NIGHT_COLOURS) counts[colour] = typeof data[colour] === 'number' ? data[colour] : 0;
+  counts.total = typeof data.total === 'number' ? data.total : 0;
+  return counts;
 }
 
 function toReply(snap: QueryDocumentSnapshot<DocumentData>): Reply {
@@ -415,6 +431,58 @@ export async function createFirebaseStore(config: FirebaseOptions): Promise<Comm
     dismissReport: async (id) => {
       try {
         await fs.deleteDoc(fs.doc(db, 'reports', id));
+      } catch (err) {
+        throw friendly(err);
+      }
+    },
+
+    watchNight: (nightId, cb) =>
+      fs.onSnapshot(
+        fs.doc(db, 'nights', nightId),
+        (snap) => cb(toCounts(snap.data())),
+        () => cb({ ...EMPTY_COUNTS }),
+      ),
+
+    watchBonds: (nightId, cb) =>
+      fs.onSnapshot(
+        fs.query(fs.collection(db, 'nights', nightId, 'bonds'), fs.orderBy('at', 'desc'), fs.limit(8)),
+        (snap) => cb(snap.docs.map(toBond)),
+        () => cb([]),
+      ),
+
+    watchMyBond: (nightId, cb) =>
+      perUser((u) => {
+        if (!u) {
+          cb(null);
+          return () => {};
+        }
+        return fs.onSnapshot(
+          fs.doc(db, 'nights', nightId, 'bonds', u.uid),
+          (snap) => cb(snap.exists() ? toBond(snap) : null),
+          () => cb(null),
+        );
+      }),
+
+    addBond: async (nightId, dragon) => {
+      const me = await rider();
+      const bond = fs.doc(db, 'nights', nightId, 'bonds', me.uid);
+      const batch = fs.writeBatch(db);
+      batch.set(bond, { ...dragon, riderName: me.name, at: fs.serverTimestamp() });
+      batch.set(fs.doc(db, 'nights', nightId), { total: fs.increment(1), [dragon.colour]: fs.increment(1) }, { merge: true });
+      try {
+        await batch.commit();
+      } catch (err) {
+        throw friendly(err);
+      }
+    },
+
+    resetPractice: async () => {
+      try {
+        const bonds = await fs.getDocs(fs.collection(db, 'nights', PRACTICE_ID, 'bonds'));
+        const batch = fs.writeBatch(db);
+        bonds.docs.forEach((d) => batch.delete(d.ref));
+        batch.delete(fs.doc(db, 'nights', PRACTICE_ID));
+        await batch.commit();
       } catch (err) {
         throw friendly(err);
       }

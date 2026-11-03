@@ -3,6 +3,7 @@ import { Link } from './components/Link';
 import { ArchiveMapPage } from './pages/ArchiveMap';
 import { CodexPage } from './pages/Codex';
 import { CommonsPage } from './pages/Commons';
+import { NightPage } from './pages/Night';
 import { FlyPage } from './pages/Fly';
 import { HomePage } from './pages/Home';
 import { ReadPage } from './pages/Read';
@@ -43,6 +44,8 @@ function Page({ route }: { route: Route | null }) {
       return <RelicPage />;
     case 'commons':
       return <CommonsPage />;
+    case 'night':
+      return <NightPage />;
     case 'wallpapers':
       return <WallpapersPage />;
     default:

@@ -156,5 +156,47 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
       allow read, delete: if isMod();
     }
+
+    // Threshing Night: each rider adds their dragon once per night, and the counts only
+    // move up by one, alongside that new bond. This month's field is open to every
+    // signed-in rider; the practice field only to moderators.
+    function thisMonth(night) {
+      let m = request.time.month();
+      return night == string(request.time.year()) + '-' + (m < 10 ? '0' : '') + string(m);
+    }
+    function openField(night) { return thisMonth(night) || (night == 'practice' && isMod()); }
+
+    match /nights/{night} {
+      function bondPath() { return /databases/$(database)/documents/nights/$(night)/bonds/$(me()); }
+      function newColour() { return getAfter(bondPath()).data.colour; }
+      function was(field) { return resource == null || !(field in resource.data) ? 0 : resource.data[field]; }
+
+      allow read: if true;
+      allow create, update: if signedIn()
+        && openField(night)
+        && !exists(bondPath()) && existsAfter(bondPath())
+        && request.resource.data.keys().hasOnly(['red', 'green', 'blue', 'orange', 'brown', 'black', 'total'])
+        && request.resource.data.diff(resource == null ? {} : resource.data).affectedKeys().hasOnly(['total', newColour()])
+        && request.resource.data.total == was('total') + 1
+        && request.resource.data[newColour()] == was(newColour()) + 1;
+      allow delete: if night == 'practice' && isMod();
+
+      match /bonds/{uid} {
+        allow read: if true;
+        allow create: if signedIn() && uid == me()
+          && openField(night)
+          && request.resource.data.keys().hasOnly(['colour', 'tail', 'dragonName', 'riderName', 'at'])
+          && request.resource.data.keys().hasAll(['colour', 'tail', 'dragonName', 'riderName', 'at'])
+          && colour(request.resource.data.colour)
+          && request.resource.data.tail in ['swordtail', 'clubtail', 'daggertail', 'scorpiontail', 'morningstartail']
+          && text(request.resource.data.dragonName, 1, 40)
+          && request.resource.data.riderName == rider().name
+          && request.resource.data.at == request.time
+          && getAfter(/databases/$(database)/documents/nights/$(night)).data.total
+            == (exists(/databases/$(database)/documents/nights/$(night))
+                ? get(/databases/$(database)/documents/nights/$(night)).data.total : 0) + 1;
+        allow delete: if night == 'practice' && isMod();
+      }
+    }
   }
 }

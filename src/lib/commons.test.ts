@@ -158,3 +158,45 @@ describe('the preview store', () => {
     expect(latest(createPreviewStore(storage, () => clock))).toHaveLength(1);
   });
 });
+
+describe('Threshing Night in the preview store', () => {
+  const clock = Date.UTC(2026, 10, 7, 19);
+  const ready = async () => {
+    const store = createPreviewStore(new MemoryStorage() as unknown as Storage, () => clock);
+    await store.signInWithGoogle();
+    await store.saveRider('violet', 'blue');
+    return store;
+  };
+  const tairn = { dragonName: 'Tairn', colour: 'black' as const, tail: 'morningstartail' as const };
+
+  it('counts each rider once per night, by colour', async () => {
+    const store = await ready();
+    await store.addBond('2026-11', tairn);
+    await expect(store.addBond('2026-11', tairn)).rejects.toThrow(/already/);
+    let total = 0;
+    let black = 0;
+    store.watchNight('2026-11', (c) => ({ total, black } = c))();
+    expect({ total, black }).toEqual({ total: 1, black: 1 });
+  });
+
+  it('puts the newest bond at the top of the feed, and knows it is yours', async () => {
+    const store = await ready();
+    await store.addBond('2026-11', tairn);
+    let feed: string[] = [];
+    let mine: string | null = null;
+    store.watchBonds('2026-11', (b) => (feed = b.map((x) => `${x.riderName}:${x.dragonName}`)))();
+    store.watchMyBond('2026-11', (b) => (mine = b?.dragonName ?? null))();
+    expect(feed).toEqual(['violet:Tairn']);
+    expect(mine).toBe('Tairn');
+  });
+
+  it('keeps nights apart and empties the practice field', async () => {
+    const store = await ready();
+    await store.addBond('practice', tairn);
+    await store.addBond('2026-11', tairn);
+    await store.resetPractice();
+    const totals: Record<string, number> = {};
+    for (const id of ['practice', '2026-11']) store.watchNight(id, (c) => (totals[id] = c.total))();
+    expect(totals).toEqual({ practice: 0, '2026-11': 1 });
+  });
+});

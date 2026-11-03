@@ -7,6 +7,7 @@ import { IMAGE_TYPE, renderImage } from '../lib/render';
 import { PATHS } from '../lib/router';
 import { canShareImages, saveFile, shareFile } from '../lib/share';
 import { choose, COLOURS, describe, isComplete, loadBond, QUESTIONS, saveBond, tidyRider } from '../lib/threshing';
+import { nightStatus } from '../lib/threshingNight';
 
 type Phase = 'intro' | 'walk' | 'reveal' | 'bond';
 type Status = { kind: 'idle' } | { kind: 'working' } | { kind: 'done'; message: string } | { kind: 'error'; message: string };
@@ -229,6 +230,9 @@ export function ThreshingPage() {
                 : 'Sized for stories on TikTok and Instagram.'}
             </p>
             <div className="bond-links">
+              <Link href={PATHS.night} className="text-button">
+                {nightStatus().live ? `Threshing Night is live: add ${bond.dragonName} to tonight` : `Bring ${bond.dragonName} to Threshing Night`}
+              </Link>
               <Link href={`${PATHS.codex}?a=yours&b=tairn`} className="text-button">
                 Set {bond.dragonName} beside Tairn
               </Link>

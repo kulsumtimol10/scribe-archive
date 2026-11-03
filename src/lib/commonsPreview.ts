@@ -18,7 +18,8 @@ import {
   type Thread,
 } from './commons';
 import type { Book } from './spoilers';
-import type { DragonColour } from './threshing';
+import type { DragonColour, Tail } from './threshing';
+import { EMPTY_COUNTS, PRACTICE_ID, type NightBond, type NightCounts } from './threshingNight';
 
 /**
  * The Commons before it is connected: the same store, kept in this browser
@@ -39,6 +40,8 @@ interface Data {
   votes: Partial<Record<Book, number>>;
   totals: Record<Book, { total: number; count: number }>;
   reports: Report[];
+  nights: Record<string, NightCounts>;
+  bonds: Record<string, NightBond[]>;
 }
 
 const fresh = (): Data => ({
@@ -51,6 +54,8 @@ const fresh = (): Data => ({
   votes: {},
   totals: { 1: { total: 0, count: 0 }, 2: { total: 0, count: 0 }, 3: { total: 0, count: 0 } },
   reports: [],
+  nights: {},
+  bonds: {},
 });
 
 function browserStorage(): Storage | null {
@@ -229,5 +234,25 @@ export function createPreviewStore(storage: Storage | null = browserStorage(), n
     },
     setHidden: async (path: string, hidden: boolean) => commit(withHidden(path, hidden)),
     dismissReport: async (reportId: string) => commit({ ...data, reports: data.reports.filter((r) => r.id !== reportId) }),
+
+    watchNight: (nightId, cb) => watch(() => cb(data.nights[nightId] ?? EMPTY_COUNTS)),
+    watchBonds: (nightId, cb) => watch(() => cb((data.bonds[nightId] ?? []).slice(0, 8))),
+    watchMyBond: (nightId, cb) => watch(() => cb((data.bonds[nightId] ?? []).find((b) => b.uid === UID && data.signedIn) ?? null)),
+    addBond: async (nightId: string, dragon: { dragonName: string; colour: DragonColour; tail: Tail }) => {
+      const me = rider();
+      if ((data.bonds[nightId] ?? []).some((b) => b.uid === me.uid)) throw new Error('Your dragon is already on the field tonight.');
+      const counts = data.nights[nightId] ?? EMPTY_COUNTS;
+      const bond: NightBond = { uid: me.uid, riderName: me.name, ...dragon, at: now() };
+      commit({
+        ...data,
+        nights: { ...data.nights, [nightId]: { ...counts, [dragon.colour]: counts[dragon.colour] + 1, total: counts.total + 1 } },
+        bonds: { ...data.bonds, [nightId]: [bond, ...(data.bonds[nightId] ?? [])] },
+      });
+    },
+    resetPractice: async () => {
+      const { [PRACTICE_ID]: _counts, ...nights } = data.nights;
+      const { [PRACTICE_ID]: _bonds, ...bonds } = data.bonds;
+      commit({ ...data, nights, bonds });
+    },
   };
 }

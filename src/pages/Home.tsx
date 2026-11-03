@@ -1,6 +1,7 @@
 import { HeroScene } from '../components/art/HeroScene';
 import { Link } from '../components/Link';
 import { PATHS } from '../lib/router';
+import { localWhen, nightStatus } from '../lib/threshingNight';
 
 const OPEN = [
   {
@@ -59,11 +60,8 @@ const OPEN = [
   },
 ];
 
-const FORGING = [
-  { name: 'Threshing Night', text: 'Once a month, every reader walks the field at the same time.' },
-];
-
 export function HomePage() {
+  const night = nightStatus();
   return (
     <>
       <section className="hero">
@@ -72,8 +70,8 @@ export function HomePage() {
           <p className="kicker">An unofficial, fan-made world for riders</p>
           <h1>The Scribe Archive</h1>
           <p className="lore">
-            For everyone who crossed the Parapet with Violet. Read with Basgiath's storms, carry your dragon with you, and
-            come back for what's being forged next.
+            For everyone who crossed the Parapet with Violet. Find your dragon, fly with Tairn, argue in the Commons, and
+            come back every month for Threshing Night.
           </p>
           <div className="actions">
             <Link href={PATHS.threshing} className="button primary">
@@ -107,19 +105,24 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="page-section" aria-labelledby="forging">
-        <h2 id="forging" className="section-title">
-          Being forged
-        </h2>
-        <ul className="forge-list">
-          {FORGING.map((item) => (
-            <li key={item.name} className="forge-card">
-              <span className="forge-name">{item.name}</span>
-              <span className="muted">{item.text}</span>
-              <span className="soon">Soon</span>
-            </li>
-          ))}
-        </ul>
+      <section className="page-section" aria-labelledby="night-band">
+        <Link href={PATHS.night} className={night.live ? 'night-band live' : 'night-band'}>
+          <span className="kicker">{night.live ? 'Live now' : 'Once a month · everyone at once'}</span>
+          <span id="night-band" className="feature-name">
+            Threshing Night
+          </span>
+          <span className="lore">
+            {night.live
+              ? 'The field is open. Add the dragon that chose you and watch every other rider’s arrive.'
+              : `Next on ${localWhen(night.next.start)}, your time. Every reader walks the field together.`}
+          </span>
+          <span className="feature-go" aria-hidden="true">
+            {night.live ? 'Join the field' : 'See the field'}
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          </span>
+        </Link>
       </section>
     </>
   );

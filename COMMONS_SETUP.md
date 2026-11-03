@@ -58,6 +58,36 @@ in place of `null`. Once that's published, the preview banner disappears and the
 Moderators see a **Reports** panel and a **Hide** button on every post. Repeat for anyone else who
 helps moderate.
 
+## 6. Paste the rules again when the site grows
+
+Whenever the site adds something that saves to Firebase, `firestore.rules` gains a section, and the console
+needs the new copy: **Firestore Database › Rules**, replace everything with the current
+[`firestore.rules`](firestore.rules), **Publish**. Threshing Night is the latest: until its rules are
+published, its counts can't be saved.
+
+## 7. Optional: lock the key to your site
+
+The web settings' key only works for this project, and the rules protect the data, so this is extra
+safety rather than a must. It stops other websites from using your key and your free quota.
+
+1. Open <https://console.cloud.google.com/apis/credentials?project=scribe-archive-747a9>, signed in with
+   the same Google account.
+2. Under **API keys**, open **Browser key (auto created by Firebase)**.
+3. Under **Application restrictions**, choose **Websites** and add these three:
+   - `https://kulsumtimol10.github.io/*`
+   - `https://scribe-archive-747a9.firebaseapp.com/*` (Google sign-in's pop-up runs here; leave it out and
+     sign-in stops working)
+   - `http://localhost:5190/*` (only for trying the site on a computer while building it)
+4. Leave **API restrictions** as they are, and **Save**. It can take five minutes to apply.
+
+## Threshing Night
+
+Threshing Night runs on the first Saturday of every month, 6 pm to midnight UTC (each reader sees it in
+their own time). To change that, edit `SCHEDULE` in `src/lib/threshingNight.ts`. Readers sign in with their
+Commons account to add the dragon the Threshing gave them, once per night. Moderators see an
+**Open the practice field** button on the Threshing Night page that works exactly like the real field but
+never counts, and **Empty the practice field** to start again.
+
 ## What the free plan allows
 
 Roughly 50,000 reads and 20,000 writes a day, and 1 GB of stored posts. That's plenty for a growing fan

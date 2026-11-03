@@ -67,6 +67,11 @@ Rebecca Yarros, Entangled Publishing or Red Tower Books.
   in it runs in a labelled preview that keeps posts in the visitor's own browser. Setup steps are in
   [COMMONS_SETUP.md](COMMONS_SETUP.md); the server-side rules are in `firestore.rules`. The posting rules and
   the preview store are tested in `src/lib/commons.test.ts`.
+- **Threshing Night** (`/night`). Once a month (the first Saturday, 6 pm to midnight UTC), readers add the
+  dragon the Threshing gave them to one shared count: a live total, bars for each colour, and a feed of who
+  was chosen. Between nights it counts down to the next one, offers a calendar reminder (`.ics`) and shows
+  the last night's results. One bond per rider per night, enforced in `firestore.rules`; moderators get a
+  practice field that never counts. The schedule is in `src/lib/threshingNight.ts` (tested).
 - **Read with Basgiath** (`/read`). Six ambient layers (rain, wind, hearth, thunder, wingbeats, scribe quills)
   synthesised live with the Web Audio API, so there are no recordings to license. Presets, per-layer sliders
   and a reading timer that fades the sound out.
@@ -107,5 +112,5 @@ No AI art, no text copied from the books, nothing for sale. Credit fan artists b
 
 ## Next up
 
-Connecting the Commons to Firebase (see COMMONS_SETUP.md), then Threshing Night, a live monthly event that can
-run on the same Firebase project.
+Every planned feature is built. Ideas for later: squads and leaderboards for the Trials, and image uploads
+for fan art (they need Firebase's paid plan).

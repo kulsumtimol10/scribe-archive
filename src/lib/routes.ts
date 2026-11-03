@@ -1,4 +1,4 @@
-export type Route = 'home' | 'map' | 'fly' | 'threshing' | 'codex' | 'trials' | 'parapet' | 'gauntlet' | 'warGames' | 'read' | 'relic' | 'commons' | 'wallpapers';
+export type Route = 'home' | 'map' | 'fly' | 'threshing' | 'codex' | 'trials' | 'parapet' | 'gauntlet' | 'warGames' | 'read' | 'relic' | 'commons' | 'night' | 'wallpapers';
 
 /**
  * Each page's path inside the site, before the folder it is hosted under.
@@ -17,5 +17,6 @@ export const ROUTES: Record<Route, string> = {
   read: '/read',
   relic: '/relic',
   commons: '/commons',
+  night: '/night',
   wallpapers: '/wallpapers',
 };

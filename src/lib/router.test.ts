@@ -15,6 +15,7 @@ describe('routeOf at the site root', () => {
     expect(routeOf('/read', '')).toBe('read');
     expect(routeOf('/relic', '')).toBe('relic');
     expect(routeOf('/commons', '')).toBe('commons');
+    expect(routeOf('/night', '')).toBe('night');
     expect(routeOf('/wallpapers', '')).toBe('wallpapers');
   });
 

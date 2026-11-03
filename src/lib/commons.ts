@@ -1,5 +1,6 @@
 import type { Book } from './spoilers';
-import type { DragonColour } from './threshing';
+import type { DragonColour, Tail } from './threshing';
+import type { NightBond, NightCounts } from './threshingNight';
 
 /**
  * The Commons: fan discussion, spoiler-shielded by book. This file holds the
@@ -151,6 +152,16 @@ export interface CommonsStore {
   /** Moderators hide or restore anything; authors can take down their own. */
   setHidden(path: string, hidden: boolean): Promise<void>;
   dismissReport(id: string): Promise<void>;
+
+  /* Threshing Night shares the Commons' accounts and store. */
+  watchNight(nightId: string, cb: (counts: NightCounts) => void): () => void;
+  /** The latest bonds, newest first, for the feed. */
+  watchBonds(nightId: string, cb: (bonds: NightBond[]) => void): () => void;
+  watchMyBond(nightId: string, cb: (bond: NightBond | null) => void): () => void;
+  /** Adds the reader's Threshing dragon to a night's count, once per night. */
+  addBond(nightId: string, dragon: { dragonName: string; colour: DragonColour; tail: Tail }): Promise<void>;
+  /** Moderators only: empties the practice field. */
+  resetPractice(): Promise<void>;
 }
 
 const tidy = (text: string) => text.replace(/\r\n/g, '\n').trim();

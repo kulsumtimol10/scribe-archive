@@ -132,7 +132,7 @@ function PostTools({ store, account, path, authorId }: { store: CommonsStore; ac
   );
 }
 
-function SignIn({ store }: { store: CommonsStore }) {
+export function SignIn({ store, lead }: { store: CommonsStore; lead?: string }) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<{ kind: 'idle' | 'sent' | 'error'; text?: string }>({ kind: 'idle' });
   const preview = store.kind === 'preview';
@@ -155,7 +155,7 @@ function SignIn({ store }: { store: CommonsStore }) {
   return (
     <div className="commons-card sign-in">
       <p className="legend">Join the Commons</p>
-      <p className="small">Sign in to post, reply and give scales. Other riders only ever see the rider name you choose.</p>
+      <p className="small">{lead ?? 'Sign in to post, reply and give scales.'} Other riders only ever see the rider name you choose.</p>
       {preview ? (
         <button type="button" className="button primary" onClick={google}>
           Try it as a test rider
@@ -190,7 +190,7 @@ function SignIn({ store }: { store: CommonsStore }) {
   );
 }
 
-function RiderSetup({ store, onDone }: { store: CommonsStore; onDone?: () => void }) {
+export function RiderSetup({ store, onDone }: { store: CommonsStore; onDone?: () => void }) {
   const bond = useMemo(() => {
     const saved = loadBond();
     return saved ? choose(saved.answers, saved.rider) : null;
@@ -342,12 +342,15 @@ function ScaleButton({ count, on, enabled, onClick }: { count: number; on: boole
         aria-pressed={on}
         aria-label={on ? 'Take back your dragon scale' : 'Give a dragon scale'}
         disabled={!enabled}
-        title={enabled ? undefined : 'Sign in to give scales'}
+        title={enabled ? (on ? 'Take back your scale' : 'Give a dragon scale') : 'Sign in to give scales'}
         onClick={onClick}
       >
         <Scale />
       </button>
-      <span>{count.toLocaleString('en-US')}</span>
+      <span className="scale-number">{count.toLocaleString('en-US')}</span>
+      <span className="scale-word" aria-hidden="true">
+        {count === 1 ? 'scale' : 'scales'}
+      </span>
     </div>
   );
 }
